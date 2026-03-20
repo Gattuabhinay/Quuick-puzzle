@@ -680,7 +680,14 @@ Thank you! 🙏
       </section>
 
       {/* --- FOOTER SECTION --- */}
-      <footer className="relative bg-black py-20 px-4 overflow-hidden">
+      <footer className="relative py-20 px-4 overflow-hidden bg-[#0D1117]">
+        {/* Background Image with Overlay */}
+        <div 
+          className="absolute inset-0 z-0 bg-cover bg-center opacity-30"
+          style={{ backgroundImage: 'url("https://res.cloudinary.com/djz4ulfhh/image/upload/v1774025204/nnrg_web_logo_image_vrvgoq.png")' }}
+        />
+        <div className="absolute inset-0 z-0 bg-gradient-to-t from-black via-black/80 to-transparent" />
+
         {/* Watermark */}
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
           <span className="text-white/3 font-black tracking-[8px] whitespace-nowrap text-[min(160px,12vw)]">
