@@ -109,6 +109,9 @@ export default function App() {
     return Object.keys(newErrors).length === 0;
   };
 
+  const totalAmount = formData.member2Name.trim() !== '' ? 200 : 100;
+  const personCount = formData.member2Name.trim() !== '' ? 2 : 1;
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (validateForm()) {
@@ -128,7 +131,7 @@ Email: ${formData.email || 'Not provided'}
 *Member 2:* ${formData.member2Name ? `\nName: ${formData.member2Name}\nRoll No: ${formData.member2Roll}` : 'None'}
 
 *Payment Details:*
-Amount Paid: ₹100
+Amount Paid: ₹${totalAmount}
 Transaction ID: ${formData.transactionId}
 ━━━━━━━━━━━━━━━━
 Please verify my payment and confirm my registration for Quick Puzzle.
@@ -271,7 +274,7 @@ Thank you! 🙏
               { label: 'TIME', value: '9:30 AM', icon: Clock },
               { label: 'VENUE', value: 'Seminar Hall', icon: MapPin },
               { label: 'TEAM', value: '1-2 Members', icon: Users },
-              { label: 'FEE', value: '₹100 / Team', icon: IndianRupee },
+              { label: 'FEE', value: '₹100 / Person', icon: IndianRupee },
             ].map((item, idx) => (
               <motion.div 
                 key={idx}
@@ -451,7 +454,7 @@ Thank you! 🙏
             <div className="flex justify-center mb-8">
               <div className="bg-white p-3 rounded-xl">
                 <img 
-                  src="https://quickchart.io/qr?text=upi://pay?pa=8309030400-id8e@axl%26pn=GattuAbhinay%26am=100%26cu=INR%26tn=NNRG_TechFest_QuickPuzzle&size=300" 
+                  src={`https://quickchart.io/qr?text=upi://pay?pa=8309030400-id8e@axl%26pn=GattuAbhinay%26am=${totalAmount}%26cu=INR%26tn=NNRG_TechFest_QuickPuzzle&size=300`} 
                   alt="Payment QR Code"
                   className="w-[260px] h-[260px]"
                   referrerPolicy="no-referrer"
@@ -474,12 +477,12 @@ Thank you! 🙏
               </div>
               <div className="p-4 bg-white/5 rounded-lg">
                 <p className="text-[#6e7681] text-[10px] uppercase mb-1">AMOUNT</p>
-                <p className="text-[#22C55E] font-bold text-sm">₹100</p>
+                <p className="text-[#22C55E] font-bold text-sm">₹{totalAmount}</p>
               </div>
             </div>
 
             <div className="p-3 bg-[#F59E0B]/6 border-l-2 border-[#F59E0B] text-[#F59E0B] text-sm">
-              📋 Note: NNRG TechFest - Quick Puzzle
+              📋 Note: NNRG TechFest - Quick Puzzle (${personCount} Person${personCount > 1 ? 's' : ''})
             </div>
           </div>
         </div>
@@ -615,7 +618,12 @@ Thank you! 🙏
               </div>
 
               <div className="pt-4 border-t border-white/5">
-                <h3 className="text-white font-bold text-[14px] mb-6">Member 2 (Optional)</h3>
+                <div className="flex justify-between items-center mb-6">
+                  <h3 className="text-white font-bold text-[14px]">Member 2 (Optional)</h3>
+                  <div className="text-[#F59E0B] text-[12px] font-bold bg-[#F59E0B]/10 px-3 py-1 rounded-full border border-[#F59E0B]/20">
+                    Registration Fee: ₹{totalAmount} ({personCount} person{personCount > 1 ? 's' : ''})
+                  </div>
+                </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-[#F59E0B] text-[10px] font-bold uppercase tracking-[2px] mb-2">FULL NAME</label>
@@ -656,7 +664,7 @@ Thank you! 🙏
 
               <div className="space-y-4">
                 <div className="p-4 bg-[#F59E0B]/6 border-l-3 border-[#F59E0B] text-[#F59E0B] text-[13px]">
-                  💡 Reminder: Pay ₹100 to UPI ID <span className="font-bold">8309030400-id8e@axl</span> first, then enter your Transaction ID above.
+                  💡 Reminder: Pay ₹{totalAmount} to UPI ID <span className="font-bold">8309030400-id8e@axl</span> first, then enter your Transaction ID above.
                 </div>
 
                 <div className="p-4 bg-[#22C55E]/6 border-l-3 border-[#22C55E] text-[#22C55E] text-[13px]">
