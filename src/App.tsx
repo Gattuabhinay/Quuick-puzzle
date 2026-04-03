@@ -26,6 +26,12 @@ import {
   ArrowDown
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { createClient } from '@supabase/supabase-js';
+
+const supabase = createClient(
+  'https://dklzqwcgboolzisqngei.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRrbHpxd2NnYm9vbHppc3FuZ2VpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgxNDcxNzEsImV4cCI6MjA4MzcyMzE3MX0.TEqgRDBCHGJJJsOoLdUfXlKXmnR6m_J5woumAjOtw9E'
+);
 
 // --- Types ---
 interface FormData {
@@ -77,7 +83,21 @@ export default function App() {
 
   const [errors, setErrors] = useState<FormErrors>({});
   const [isShaking, setIsShaking] = useState(false);
+  const [registrationCount, setRegistrationCount] = useState(0);
   const formRef = useRef<HTMLDivElement>(null);
+
+  const fetchCount = async () => {
+    const { count } = await supabase
+      .from('quickpuzzle')
+      .select('*', { count: 'exact', head: true });
+    setRegistrationCount(count ?? 0);
+  };
+
+  useEffect(() => {
+    fetchCount();
+    const interval = setInterval(fetchCount, 30000);
+    return () => clearInterval(interval);
+  }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -112,10 +132,35 @@ export default function App() {
   const totalAmount = formData.member2Name.trim() !== '' ? 200 : 100;
   const personCount = formData.member2Name.trim() !== '' ? 2 : 1;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (validateForm()) {
       const collegeName = formData.college === 'Other' ? formData.otherCollege : formData.college;
+
+      // Save to Supabase
+      const { error } = await supabase
+        .from('quickpuzzle')
+        .insert([{
+          college: collegeName,
+          team_name: formData.fullName, // Using fullName as team name per instructions
+          name: formData.fullName,
+          roll_number: formData.rollNumber,
+          department: formData.department,
+          year: formData.year,
+          mobile_no: formData.mobile,
+          e_mail: formData.email || null,
+          transaction_id: formData.transactionId,
+          member2_name: formData.member2Name || null,
+          member2_roll: formData.member2Roll || null
+        }]);
+
+      if (error) {
+        console.error('Supabase error:', error);
+      } else {
+        console.log('Saved successfully!');
+        fetchCount();
+      }
+
       const message = `Hello! I have registered for *QUICK PUZZLE* event at NNRG Tech Fest 2027.
 
 *Registration Details:*
@@ -179,6 +224,19 @@ Thank you! 🙏
 
         {/* Hero Content */}
         <div className="relative z-30 flex flex-col items-center text-center px-4 max-w-5xl">
+          {/* Live Registration Counter */}
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="inline-flex items-center gap-3 bg-amber-500/12 border border-amber-500/40 rounded-[50px] px-6 py-2.5 backdrop-blur-md shadow-[0_0_30px_rgba(234,179,8,0.2)] mb-5"
+          >
+            <div className="w-2.5 h-2.5 bg-[#EAB308] rounded-full shadow-[0_0_10px_rgba(234,179,8,0.8)] animate-pulse" />
+            <span className="text-white text-[13px] font-bold tracking-[3px] uppercase">
+              LIVE  •  <span className="text-[#EAB308] text-[18px] font-black">{registrationCount}</span> REGISTERED
+            </span>
+            <span className="text-amber-500/70 text-base">👥</span>
+          </motion.div>
+
           <p className="text-white/35 text-[11px] mb-8 font-mono">
             visitor@nnrg:~$ ./launch quickpuzzle --year=2027
           </p>
