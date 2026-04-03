@@ -84,7 +84,23 @@ export default function App() {
   const [errors, setErrors] = useState<FormErrors>({});
   const [isShaking, setIsShaking] = useState(false);
   const [registrationCount, setRegistrationCount] = useState(0);
+  const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
   const formRef = useRef<HTMLDivElement>(null);
+
+  const calculateTimeLeft = () => {
+    const eventDate = new Date('February 26, 2027 09:30:00').getTime();
+    const now = new Date().getTime();
+    const difference = eventDate - now;
+
+    if (difference > 0) {
+      setTimeLeft({
+        days: Math.floor(difference / (1000 * 60 * 60 * 24)),
+        hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
+        minutes: Math.floor((difference / 1000 / 60) % 60),
+        seconds: Math.floor((difference / 1000) % 60),
+      });
+    }
+  };
 
   const fetchCount = async () => {
     const { count } = await supabase
@@ -95,8 +111,13 @@ export default function App() {
 
   useEffect(() => {
     fetchCount();
-    const interval = setInterval(fetchCount, 30000);
-    return () => clearInterval(interval);
+    calculateTimeLeft();
+    const countInterval = setInterval(fetchCount, 30000);
+    const timerInterval = setInterval(calculateTimeLeft, 1000);
+    return () => {
+      clearInterval(countInterval);
+      clearInterval(timerInterval);
+    };
   }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -263,10 +284,36 @@ Thank you! 🙏
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.4 }}
-            className="text-white/60 text-base tracking-[3px] mb-12 uppercase"
+            className="text-white/60 text-base tracking-[3px] mb-8 uppercase"
           >
             Race against time. Solve the puzzle. Win.
           </motion.p>
+
+          {/* Countdown Timer */}
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+            className="flex gap-4 md:gap-8 mb-12"
+          >
+            {[
+              { label: 'DAYS', value: timeLeft.days },
+              { label: 'HOURS', value: timeLeft.hours },
+              { label: 'MINS', value: timeLeft.minutes },
+              { label: 'SECS', value: timeLeft.seconds },
+            ].map((item, i) => (
+              <div key={i} className="flex flex-col items-center">
+                <div className="relative">
+                  <div className="text-[#F59E0B] text-3xl md:text-5xl font-black font-mono tabular-nums amber-glow">
+                    {String(item.value).padStart(2, '0')}
+                  </div>
+                </div>
+                <span className="text-white/30 text-[9px] md:text-[10px] font-bold tracking-[2px] mt-2 uppercase">
+                  {item.label}
+                </span>
+              </div>
+            ))}
+          </motion.div>
 
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
@@ -541,6 +588,64 @@ Thank you! 🙏
 
             <div className="p-3 bg-[#F59E0B]/6 border-l-2 border-[#F59E0B] text-[#F59E0B] text-sm">
               📋 Note: NNRG TechFest - Quick Puzzle (${personCount} Person${personCount > 1 ? 's' : ''})
+            </div>
+          </div>
+
+          {/* Divider */}
+          <div className="flex items-center gap-4 max-w-[700px] mx-auto my-12">
+            <div className="flex-1 h-[1px] bg-white/10" />
+            <div className="bg-[#1A1A2E] border border-[#EAB308]/30 text-[#EAB308]/80 text-[9px] tracking-[3px] px-[14px] py-[5px] rounded-[20px] font-bold uppercase">
+              OR | ALTERNATIVE
+            </div>
+            <div className="flex-1 h-[1px] bg-white/10" />
+          </div>
+
+          {/* Alternative Payment Card */}
+          <div className="max-w-[700px] mx-auto bg-[#0D1B2A] rounded-2xl p-8 border border-white/6 relative overflow-hidden">
+            <div className="absolute top-4 right-4 border border-[#EAB308]/50 text-[#EAB308] text-[9px] font-bold tracking-[2px] px-2 py-0.5 rounded uppercase">
+              ALTERNATIVE
+            </div>
+
+            <div className="bg-[#EAB308]/5 border-l-3 border-[#EAB308]/50 p-3 mb-8 flex items-center gap-3">
+              <p className="text-[#EAB308]/80 text-[11px] leading-relaxed">
+                ⚡ Use this UPI ID if the primary payment option has reached its daily transaction limit.
+              </p>
+            </div>
+
+            <p className="text-[#6e7681] text-[9px] tracking-[3px] text-center mb-6 uppercase font-bold">SCAN QR CODE TO PAY</p>
+
+            <div className="flex justify-center mb-8">
+              <div className="bg-white p-2 rounded-lg">
+                <img 
+                  src="https://quickchart.io/qr?text=upi://pay?pa=6301523538-id6e@axl%26pn=Nithish%26am=100%26cu=INR%26tn=NNRG_TechFest_QuickPuzzle&size=300" 
+                  alt="Alternative Payment QR Code"
+                  className="w-[260px] h-[260px]"
+                  referrerPolicy="no-referrer"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
+              <div className="p-4 bg-white/5 rounded-lg">
+                <p className="text-[#6e7681] text-[10px] uppercase mb-1">UPI ID</p>
+                <p className="text-[#EAB308] font-bold text-sm">6301523538-id6e@axl</p>
+              </div>
+              <div className="p-4 bg-white/5 rounded-lg">
+                <p className="text-[#6e7681] text-[10px] uppercase mb-1">PHONE</p>
+                <p className="text-[#EAB308] font-bold text-sm">6301523538</p>
+              </div>
+              <div className="p-4 bg-white/5 rounded-lg">
+                <p className="text-[#6e7681] text-[10px] uppercase mb-1">NAME</p>
+                <p className="text-white font-bold text-sm">NITHISH</p>
+              </div>
+              <div className="p-4 bg-white/5 rounded-lg">
+                <p className="text-[#6e7681] text-[10px] uppercase mb-1">AMOUNT</p>
+                <p className="text-[#22C55E] font-bold text-sm">₹100</p>
+              </div>
+            </div>
+
+            <div className="p-3 bg-[#EAB308]/3 border-l-2 border-[#EAB308]/50 text-[#EAB308]/70 text-sm">
+              📋 Note: NNRG TechFest - Quick Puzzle
             </div>
           </div>
         </div>
