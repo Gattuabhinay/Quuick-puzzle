@@ -182,6 +182,29 @@ export default function App() {
         fetchCount();
       }
 
+      // Call Vercel Serverless Function for Email Notifications
+      try {
+        await fetch('/api/register', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            college: collegeName,
+            fullName: formData.fullName,
+            rollNumber: formData.rollNumber,
+            department: formData.department,
+            year: formData.year,
+            mobile: formData.mobile,
+            email: formData.email,
+            preferredDomain: 'Quick Puzzle', // Default domain as it's not in the UI
+            transactionId: formData.transactionId
+          }),
+        });
+      } catch (apiError) {
+        console.error('API Error:', apiError);
+      }
+
       const message = `Hello! I have registered for *QUICK PUZZLE* event at NNRG Tech Fest 2027.
 
 *Registration Details:*
