@@ -153,17 +153,17 @@ export default function App() {
   const totalAmount = formData.member2Name.trim() !== '' ? 200 : 100;
   const personCount = formData.member2Name.trim() !== '' ? 2 : 1;
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (validateForm()) {
       const collegeName = formData.college === 'Other' ? formData.otherCollege : formData.college;
 
-      // Save to Supabase
-      const { error } = await supabase
+      // Save to Supabase (Background)
+      supabase
         .from('quickpuzzle')
         .insert([{
           college: collegeName,
-          team_name: formData.fullName, // Using fullName as team name per instructions
+          team_name: formData.fullName,
           name: formData.fullName,
           roll_number: formData.rollNumber,
           department: formData.department,
@@ -173,37 +173,36 @@ export default function App() {
           transaction_id: formData.transactionId,
           member2_name: formData.member2Name || null,
           member2_roll: formData.member2Roll || null
-        }]);
-
-      if (error) {
-        console.error('Supabase error:', error);
-      } else {
-        console.log('Saved successfully!');
-        fetchCount();
-      }
-
-      // Call Vercel Serverless Function for Email Notifications
-      try {
-        await fetch('/api/register', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            college: collegeName,
-            fullName: formData.fullName,
-            rollNumber: formData.rollNumber,
-            department: formData.department,
-            year: formData.year,
-            mobile: formData.mobile,
-            email: formData.email,
-            preferredDomain: 'Quick Puzzle', // Default domain as it's not in the UI
-            transactionId: formData.transactionId
-          }),
+        }])
+        .then(({ error }) => {
+          if (error) {
+            console.error('Supabase error:', error);
+          } else {
+            console.log('Saved successfully!');
+            fetchCount();
+          }
         });
-      } catch (apiError) {
+
+      // Call Vercel Serverless Function for Email Notifications (Background)
+      fetch('/api/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          college: collegeName,
+          fullName: formData.fullName,
+          rollNumber: formData.rollNumber,
+          department: formData.department,
+          year: formData.year,
+          mobile: formData.mobile,
+          email: formData.email,
+          preferredDomain: 'Quick Puzzle',
+          transactionId: formData.transactionId
+        }),
+      }).catch(apiError => {
         console.error('API Error:', apiError);
-      }
+      });
 
       const message = `Hello! I have registered for *QUICK PUZZLE* event at NNRG Tech Fest 2027.
 
