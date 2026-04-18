@@ -200,8 +200,17 @@ export default function App() {
           preferredDomain: 'Quick Puzzle',
           transactionId: formData.transactionId
         }),
-      }).catch(apiError => {
-        console.error('API Error:', apiError);
+      })
+      .then(async response => {
+        const data = await response.json();
+        if (response.ok) {
+          console.log('Email API Success:', data);
+        } else {
+          console.error('Email API Error:', data);
+        }
+      })
+      .catch(apiError => {
+        console.error('Email API Network Error:', apiError);
       });
 
       const message = `Hello! I have registered for *QUICK PUZZLE* event at NNRG Tech Fest 2027.
